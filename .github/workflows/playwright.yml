@@ -12,16 +12,16 @@ on:
 jobs:
   test:
     timeout-minutes: 20
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # pinned: Playwright 1.56 has no deps for ubuntu 26
     strategy:
       fail-fast: false
       matrix:
         project: [api, ui-chromium, ui-firefox]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run typecheck
@@ -30,7 +30,7 @@ jobs:
         run: npx playwright install --with-deps ${{ matrix.project == 'ui-firefox' && 'firefox' || 'chromium' }}
       - name: Run tests
         run: npx playwright test --project=${{ matrix.project }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         if: ${{ !cancelled() }}
         with:
           name: playwright-report-${{ matrix.project }}
